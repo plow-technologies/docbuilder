@@ -1,0 +1,18 @@
+Changelog for js-jquery
+
+1.12.4
+    New version of jQuery
+1.12.3
+    New version of jQuery
+1.12.2
+    New version of jQuery
+1.12.1
+    New version of jQuery
+1.12.0
+    New version of jQuery
+1.11.3
+    New version of jQuery
+1.11.2
+    New version of jQuery
+1.11.1
+    Initial version

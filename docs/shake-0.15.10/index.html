@@ -1,0 +1,20 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>shake-0.15.10: Build system library, like Make, but more accurate dependencies.</title><link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean" /><script src="haddock-util.js" type="text/javascript"></script><script type="text/javascript">//<![CDATA[
+window.onload = function () {pageLoad();};
+//]]>
+</script></head><body><div id="package-header"><ul class="links" id="page-menu"><li><a href="index.html">Contents</a></li><li><a href="doc-index.html">Index</a></li></ul><p class="caption">shake-0.15.10: Build system library, like Make, but more accurate dependencies.</p></div><div id="content"><div id="description"><h1>shake-0.15.10: Build system library, like Make, but more accurate dependencies.</h1><div class="doc"><p>Shake is a Haskell library for writing build systems - designed as a
+replacement for <code>make</code>. See <a href="Development-Shake.html">Development.Shake</a> for an introduction,
+including an example. Further examples are included in the Cabal tarball,
+under the <code>Examples</code> directory. The homepage contains links to a user
+manual, an academic paper and further information:
+<a href="http://shakebuild.com">http://shakebuild.com</a></p><p>To use Shake the user writes a Haskell program
+that imports <a href="Development-Shake.html">Development.Shake</a>, defines some build rules, and calls
+the <code>shakeArgs</code> function. Thanks to do notation and infix
+operators, a simple Shake build system
+is not too dissimilar from a simple Makefile. However, as build systems
+get more complex, Shake is able to take advantage of the excellent
+abstraction facilities offered by Haskell and easily support much larger
+projects. The Shake library provides all the standard features available in other
+build systems, including automatic parallelism and minimal rebuilds.
+Shake also provides more accurate dependency tracking, including seamless
+support for generated files, and dependencies on system information
+(e.g. compiler version).</p></div></div><div id="module-list"><p class="caption">Modules</p><ul><li><span id="control.n.1" class="module collapser" onclick="toggleSection('n.1')">Development</span><ul id="section.n.1" class="show"><li><span class="module"><span id="control.n.1.1" class="collapser" onclick="toggleSection('n.1.1')">&nbsp;</span><a href="Development-Shake.html">Development.Shake</a></span><ul id="section.n.1.1" class="show"><li><span class="module"><a href="Development-Shake-Classes.html">Development.Shake.Classes</a></span></li><li><span class="module"><a href="Development-Shake-Command.html">Development.Shake.Command</a></span></li><li><span class="module"><a href="Development-Shake-Config.html">Development.Shake.Config</a></span></li><li><span class="module"><a href="Development-Shake-FilePath.html">Development.Shake.FilePath</a></span></li><li><span class="module"><a href="Development-Shake-Forward.html">Development.Shake.Forward</a></span></li><li><span class="module"><a href="Development-Shake-Rule.html">Development.Shake.Rule</a></span></li><li><span class="module"><a href="Development-Shake-Util.html">Development.Shake.Util</a></span></li></ul></li></ul></li></ul></div></div><div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.16.1</p></div></body></html>
