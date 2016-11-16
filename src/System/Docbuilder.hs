@@ -27,7 +27,7 @@ import Development.Shake ( command_
                          , liftIO)
 import           Development.Shake.FilePath ((</>))
 import           Control.Monad (filterM)
-
+import System.Docbuilder.Hxt (rebaseDocs)
 import qualified Filesystem
 --       (isDirectory, getModified, listDirectory, isFile, writeFile) 
 import qualified Filesystem.Path.CurrentOS as CurrentOS
@@ -77,33 +77,59 @@ data DocbuilderErrors = LTSNotFound
   deriving (Show,Eq)
 
 
+
+
+
+
+
+
+
+
 --------------------------------------------------
--- Rules
+-- Rule Manager
 --------------------------------------------------
 
 -- | Top level of document generation.
 buildTheDocsRules :: Rules ()
 buildTheDocsRules = do
-  GeneratedStaticRules wants rules <- runDynamics
-  want wants
-  _ <- sequence rules
+  names <- liftIO buildNamesOrFail
+  GeneratedStaticRules stackWorkWants stackWorkRules       <- discoverStackWorkNames names
+  want stackWorkWants
+  _ <- sequence stackWorkRules
+--  GeneratedStaticRules otherPackageWants otherPackageRules <- discoverStackWorkOtherPackages names
+  want [haddockInDocsIndex]
+  _ <- docsHaddockRule names -- otherPackageWants
   return ()
+  
 
 
 
+
+
+--------------------------------------------------
+-- Rule Discovery
+--------------------------------------------------
 
 -- | build elements that depend on specific configurations of stack.yaml
 --  this mostly involves setting up the correct cabal and lts directories
 --  for copying over the documentation. 
-runDynamics :: Rules GeneratedStaticRules
-runDynamics = do
-  eitherNames <- liftIO buildNamesThatMustBeDiscovered
-  either reportFailure generateRules eitherNames
- where
-   generateRules names = return $ GeneratedStaticRules [haddockInDocsIndex     , haddockInStackWorkIndex names]
-                                                       [stackHaddockRule names , docsHaddockRule names]
-   reportFailure  e    = fail $ show e
+discoverStackWorkNames :: NamesThatMustBeDiscovered ->  Rules GeneratedStaticRules
+discoverStackWorkNames names = return $ GeneratedStaticRules [haddockInStackWorkIndex names]
+                                                                  [stackHaddockRule names]
 
+
+-- | Find the names of other packages to be built as part of the documentation
+-- discoverStackWorkOtherPackages :: NamesThatMustBeDiscovered ->  Rules GeneratedStaticRules
+-- discoverStackWorkOtherPackages names  = _
+
+
+
+
+
+
+--------------------------------------------------
+-- Individual Rules
+--------------------------------------------------
 
 
 -- | Build the documentation in the .stack-work folder  
@@ -112,11 +138,16 @@ stackHaddockRule names = haddockInStackWorkIndex names %> \_ -> do
   stackHaddockCommand
 
 
+
 -- | Copy the documentation into the destination folder 
--- docsHaddockRule :: Rules ()
-docsHaddockRule :: NamesThatMustBeDiscovered -> Rules ()
-docsHaddockRule names = haddockInDocsIndex %> \_ -> do
-    need [haddockInStackWorkIndex names]    
+-- incoming needs are generated dynamically
+docsHaddockRule :: NamesThatMustBeDiscovered ->
+--                   [FilePath] ->
+                   Rules ()
+docsHaddockRule names =
+--                needs =
+  haddockInDocsIndex %> \_ -> do
+    need ([haddockInStackWorkIndex names])
     copyOtherPackagesCommand      names -- This needs to come before copyHaddock
     copyHaddockCommand            names
 
@@ -183,9 +214,13 @@ haddockInDocs = "docs"
 haddockInDocsIndex :: FilePath
 haddockInDocsIndex = haddockInDocs </> "index.html"
 
+
+
 -- | .stack-work install path 
 stackWorkInstallPath :: CurrentOS.FilePath -> CurrentOS.FilePath
 stackWorkInstallPath wd = (wd CurrentOS.</> ".stack-work" CurrentOS.</> "install")
+
+
 
 -- | .stack-work dist path
 stackWorkDistPath :: CurrentOS.FilePath -> CurrentOS.FilePath
@@ -218,7 +253,18 @@ getDistTarget = do
  return dir
 
 
+-- | Build needed names or fail
+buildNamesOrFail :: IO NamesThatMustBeDiscovered
+buildNamesOrFail = do
+  eitherNames <- buildNamesThatMustBeDiscovered
+  either showError returnResult eitherNames
+   where   
+    showError e       = fail $ show e
+    returnResult rslt = return rslt
 
+
+
+    
 -- | build the 'NamesThatMustBeDiscovered' record, this will create the dynamic pieces
 -- of the build.
 buildNamesThatMustBeDiscovered  :: IO (Either DocbuilderErrors NamesThatMustBeDiscovered)
@@ -252,6 +298,14 @@ buildNamesThatMustBeDiscovered = do
 
 
 
+
+
+
+-- | Other Packages are those packages which are depended on by the repo
+-- They need to be copied into our documentation as well.                                      
+
+-- buildOtherPackages :: NamesThatMustBeDiscovered
+-- buildOtherPackages names = _
 
 --------------------------------------------------
 -- Package Info

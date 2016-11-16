@@ -24,20 +24,24 @@ import Text.Regex.Posix (Regex)
 import Data.Monoid ((<>))
 import  Text.XML.HXT.Core ((>>>),when) 
 
-testHtmlDocumentString = "<html><body><div><a href='./img.jpg'>Contents</a></div><div><div><div><a href='./img.jpg'>Test</a></div></div></div></body></html>"
 
 
-testParsedDocument = Hxt.readString [] testHtmlDocumentString >>> changeLocalRef >>> Hxt.writeDocumentToString []
 
-
-changeLocalRef = Hxt.processTopDown editHref
+-- | Change the reference for all urls to doc/
+rebaseDocs :: String -> Hxt.IOSLA (Hxt.XIOState s) a String
+rebaseDocs doc = Hxt.readDocument [] doc >>> changeLocalRef >>> Hxt.writeDocumentToString []
   where
-    editHref = Hxt.processAttrl ( Hxt.changeAttrValue (addPrefix "docs/") `when`
+
+  changeLocalRef = Hxt.processTopDown editHref
+    where
+      editHref = Hxt.processAttrl ( Hxt.changeAttrValue (addPrefix "docs/") `when`
                                   Hxt.hasName "href")
-               `when`
-               (Hxt.isElem >>> Hxt.hasName "a")
+                 `when`
+                 (Hxt.isElem >>> Hxt.hasName "a")
 
-addPrefix :: String -> String -> String
-addPrefix prefix str = str ^? regex [r|(\./)(.*)|] . captures . ix 1 & maybe str addPrefix
-  where
-   addPrefix = (prefix <> )                                     
+
+
+  addPrefix :: String -> String -> String
+  addPrefix prefix str = str ^? regex [r|(\./)(.*)|] . captures . ix 1 & maybe str addPrefix'
+    where
+    addPrefix' = (prefix <> )                                     
