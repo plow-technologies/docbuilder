@@ -7,34 +7,52 @@
 <link type='text/css' rel='stylesheet' href='hscolour.css' />
 </head>
 <body>
-<pre><a name="line-1"></a>
-<a name="line-2"></a><span class='hs-comment'>{- |
-<a name="line-3"></a>Module      : Docbuilder.Hxt
-<a name="line-4"></a>Description : Hxt bindings for manipulating html in documentation 
-<a name="line-5"></a>Copyright   : Plow Technologies LLC
-<a name="line-6"></a>
-<a name="line-7"></a>Maintainer  : Scott Murphy
+<pre><a name="line-1"></a><span class='hs-comment'>{-# LANGUAGE Arrows #-}</span>
+<a name="line-2"></a><span class='hs-comment'>{-# LANGUAGE QuasiQuotes #-}</span>
+<a name="line-3"></a><span class='hs-comment'>{-# LANGUAGE NoMonomorphismRestriction #-}</span>
+<a name="line-4"></a><span class='hs-comment'>{- |
+<a name="line-5"></a>Module      : Docbuilder.Hxt
+<a name="line-6"></a>Description : Hxt bindings for manipulating html in documentation 
+<a name="line-7"></a>Copyright   : Plow Technologies LLC
 <a name="line-8"></a>
-<a name="line-9"></a>
-<a name="line-10"></a>Parsers and Printers for processing html files
+<a name="line-9"></a>Maintainer  : Scott Murphy
+<a name="line-10"></a>
 <a name="line-11"></a>
-<a name="line-12"></a>| -}</span>
+<a name="line-12"></a>Parsers and Printers for processing html files
 <a name="line-13"></a>
-<a name="line-14"></a>
-<a name="line-15"></a><span class='hs-keyword'>module</span> <span class='hs-conid'>System</span><span class='hs-varop'>.</span><span class='hs-conid'>Docbuilder</span><span class='hs-varop'>.</span><span class='hs-conid'>Hxt</span> <span class='hs-keyword'>where</span>
+<a name="line-14"></a>| -}</span>
+<a name="line-15"></a>
 <a name="line-16"></a>
-<a name="line-17"></a><span class='hs-keyword'>import</span> <span class='hs-keyword'>qualified</span> <span class='hs-conid'>Text</span><span class='hs-varop'>.</span><span class='hs-conid'>XML</span><span class='hs-varop'>.</span><span class='hs-conid'>HXT</span><span class='hs-varop'>.</span><span class='hs-conid'>Arrow</span><span class='hs-varop'>.</span><span class='hs-conid'>XmlArrow</span> <span class='hs-keyword'>as</span> <span class='hs-conid'>Hxt</span>
-<a name="line-18"></a><span class='hs-keyword'>import</span> <span class='hs-keyword'>qualified</span> <span class='hs-conid'>Text</span><span class='hs-varop'>.</span><span class='hs-conid'>XML</span><span class='hs-varop'>.</span><span class='hs-conid'>HXT</span><span class='hs-varop'>.</span><span class='hs-conid'>DOM</span><span class='hs-varop'>.</span><span class='hs-conid'>TypeDefs</span> <span class='hs-keyword'>as</span> <span class='hs-conid'>Hxt</span>
-<a name="line-19"></a>
-<a name="line-20"></a>
-<a name="line-21"></a><a name="myAddAttr"></a><span class='hs-definition'>myAddAttr</span>
-<a name="line-22"></a>  <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Hxt</span><span class='hs-varop'>.</span><span class='hs-conid'>ArrowXml</span> <span class='hs-varid'>a</span> <span class='hs-keyglyph'>=&gt;</span>
-<a name="line-23"></a>     <span class='hs-conid'>String</span>
-<a name="line-24"></a>     <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>String</span>
-<a name="line-25"></a>     <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>a</span> <span class='hs-conid'>Hxt</span><span class='hs-varop'>.</span><span class='hs-conid'>XmlTree</span> <span class='hs-conid'>Hxt</span><span class='hs-varop'>.</span><span class='hs-conid'>XmlTree</span>
-<a name="line-26"></a><span class='hs-definition'>myAddAttr</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Hxt</span><span class='hs-varop'>.</span><span class='hs-varid'>addAttr</span>
+<a name="line-17"></a><span class='hs-keyword'>module</span> <span class='hs-conid'>System</span><span class='hs-varop'>.</span><span class='hs-conid'>Docbuilder</span><span class='hs-varop'>.</span><span class='hs-conid'>Hxt</span> <span class='hs-keyword'>where</span>
+<a name="line-18"></a>
+<a name="line-19"></a><span class='hs-keyword'>import</span> <span class='hs-keyword'>qualified</span> <span class='hs-conid'>Text</span><span class='hs-varop'>.</span><span class='hs-conid'>XML</span><span class='hs-varop'>.</span><span class='hs-conid'>HXT</span><span class='hs-varop'>.</span><span class='hs-conid'>Core</span> <span class='hs-keyword'>as</span> <span class='hs-conid'>Hxt</span>
+<a name="line-20"></a><span class='hs-keyword'>import</span> <span class='hs-conid'>Control</span><span class='hs-varop'>.</span><span class='hs-conid'>Lens</span>
+<a name="line-21"></a><span class='hs-keyword'>import</span> <span class='hs-conid'>Text</span><span class='hs-varop'>.</span><span class='hs-conid'>Regex</span><span class='hs-varop'>.</span><span class='hs-conid'>Lens</span>
+<a name="line-22"></a><span class='hs-keyword'>import</span> <span class='hs-conid'>Text</span><span class='hs-varop'>.</span><span class='hs-conid'>Regex</span><span class='hs-varop'>.</span><span class='hs-conid'>Quote</span>
+<a name="line-23"></a><span class='hs-keyword'>import</span> <span class='hs-conid'>Text</span><span class='hs-varop'>.</span><span class='hs-conid'>Regex</span><span class='hs-varop'>.</span><span class='hs-conid'>Posix</span> <span class='hs-layout'>(</span><span class='hs-conid'>Regex</span><span class='hs-layout'>)</span>
+<a name="line-24"></a><span class='hs-keyword'>import</span> <span class='hs-conid'>Data</span><span class='hs-varop'>.</span><span class='hs-conid'>Monoid</span> <span class='hs-layout'>(</span><span class='hs-layout'>(</span><span class='hs-varop'>&lt;&gt;</span><span class='hs-layout'>)</span><span class='hs-layout'>)</span>
+<a name="line-25"></a><span class='hs-keyword'>import</span>  <span class='hs-conid'>Text</span><span class='hs-varop'>.</span><span class='hs-conid'>XML</span><span class='hs-varop'>.</span><span class='hs-conid'>HXT</span><span class='hs-varop'>.</span><span class='hs-conid'>Core</span> <span class='hs-layout'>(</span><span class='hs-layout'>(</span><span class='hs-varop'>&gt;&gt;&gt;</span><span class='hs-layout'>)</span><span class='hs-layout'>,</span><span class='hs-varid'>when</span><span class='hs-layout'>)</span> 
+<a name="line-26"></a>
 <a name="line-27"></a>
 <a name="line-28"></a>
 <a name="line-29"></a>
+<a name="line-30"></a><a name="rebaseDocs"></a><span class='hs-comment'>-- | Change the reference for all urls to doc/</span>
+<a name="line-31"></a><span class='hs-definition'>rebaseDocs</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Hxt</span><span class='hs-varop'>.</span><span class='hs-conid'>IOSLA</span> <span class='hs-layout'>(</span><span class='hs-conid'>Hxt</span><span class='hs-varop'>.</span><span class='hs-conid'>XIOState</span> <span class='hs-varid'>s</span><span class='hs-layout'>)</span> <span class='hs-varid'>a</span> <span class='hs-conid'>String</span>
+<a name="line-32"></a><span class='hs-definition'>rebaseDocs</span> <span class='hs-varid'>doc</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Hxt</span><span class='hs-varop'>.</span><span class='hs-varid'>readDocument</span> <span class='hs-conid'>[]</span> <span class='hs-varid'>doc</span> <span class='hs-varop'>&gt;&gt;&gt;</span> <span class='hs-varid'>changeLocalRef</span> <span class='hs-varop'>&gt;&gt;&gt;</span> <span class='hs-conid'>Hxt</span><span class='hs-varop'>.</span><span class='hs-varid'>writeDocumentToString</span> <span class='hs-conid'>[]</span>
+<a name="line-33"></a>  <span class='hs-keyword'>where</span>
+<a name="line-34"></a>
+<a name="line-35"></a>  <span class='hs-varid'>changeLocalRef</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Hxt</span><span class='hs-varop'>.</span><span class='hs-varid'>processTopDown</span> <span class='hs-varid'>editHref</span>
+<a name="line-36"></a>    <span class='hs-keyword'>where</span>
+<a name="line-37"></a>      <span class='hs-varid'>editHref</span> <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Hxt</span><span class='hs-varop'>.</span><span class='hs-varid'>processAttrl</span> <span class='hs-layout'>(</span> <span class='hs-conid'>Hxt</span><span class='hs-varop'>.</span><span class='hs-varid'>changeAttrValue</span> <span class='hs-layout'>(</span><span class='hs-varid'>addPrefix</span> <span class='hs-str'>"docs/"</span><span class='hs-layout'>)</span> <span class='hs-varop'>`when`</span>
+<a name="line-38"></a>                                  <span class='hs-conid'>Hxt</span><span class='hs-varop'>.</span><span class='hs-varid'>hasName</span> <span class='hs-str'>"href"</span><span class='hs-layout'>)</span>
+<a name="line-39"></a>                 <span class='hs-varop'>`when`</span>
+<a name="line-40"></a>                 <span class='hs-layout'>(</span><span class='hs-conid'>Hxt</span><span class='hs-varop'>.</span><span class='hs-varid'>isElem</span> <span class='hs-varop'>&gt;&gt;&gt;</span> <span class='hs-conid'>Hxt</span><span class='hs-varop'>.</span><span class='hs-varid'>hasName</span> <span class='hs-str'>"a"</span><span class='hs-layout'>)</span>
+<a name="line-41"></a>
+<a name="line-42"></a>
+<a name="line-43"></a>
+<a name="line-44"></a>  <span class='hs-varid'>addPrefix</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>String</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>String</span>
+<a name="line-45"></a>  <span class='hs-varid'>addPrefix</span> <span class='hs-varid'>prefix</span> <span class='hs-varid'>str</span> <span class='hs-keyglyph'>=</span> <span class='hs-varid'>str</span> <span class='hs-varop'>^?</span> <span class='hs-varid'>regex</span> <span class='hs-keyglyph'>[</span><span class='hs-varid'>r</span><span class='hs-keyglyph'>|</span><span class='hs-layout'>(</span><span class='hs-varop'>\./</span><span class='hs-layout'>)</span><span class='hs-layout'>(</span><span class='hs-varop'>.*</span><span class='hs-layout'>)</span><span class='hs-keyglyph'>|</span><span class='hs-keyglyph'>]</span> <span class='hs-varop'>.</span> <span class='hs-varid'>captures</span> <span class='hs-varop'>.</span> <span class='hs-varid'>ix</span> <span class='hs-num'>1</span> <span class='hs-varop'>&amp;</span> <span class='hs-varid'>maybe</span> <span class='hs-varid'>str</span> <span class='hs-varid'>addPrefix'</span>
+<a name="line-46"></a>    <span class='hs-keyword'>where</span>
+<a name="line-47"></a>    <span class='hs-varid'>addPrefix'</span> <span class='hs-keyglyph'>=</span> <span class='hs-layout'>(</span><span class='hs-varid'>prefix</span> <span class='hs-varop'>&lt;&gt;</span> <span class='hs-layout'>)</span>                                     
 </pre></body>
 </html>

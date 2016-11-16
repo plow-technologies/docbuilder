@@ -10,7 +10,9 @@
 --   
 --   |
 module System.Docbuilder.Hxt
-myAddAttr :: ArrowXml a => String -> String -> a XmlTree XmlTree
+
+-- | Change the reference for all urls to doc/
+rebaseDocs :: String -> IOSLA (XIOState s) a String
 
 
 -- | Build documentation and put it in /docs
