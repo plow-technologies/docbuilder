@@ -40,6 +40,9 @@ import Text.Regex.Lens
 import Text.Regex.Quote
 import Text.Regex.Posix (Regex)
 import Data.Bifunctor (first)
+
+
+
 import qualified Data.Yaml as Yaml
 
 
@@ -58,7 +61,7 @@ data GeneratedStaticRules = GeneratedStaticRules {
 -- | All Paths are the base path versions
 data NamesThatMustBeDiscovered = NamesThatMustBeDiscovered
   { 
-    buildTarget :: FilePath, -- x86_64
+    targetPath  :: FilePath, -- x86_64
     cabalPath   :: FilePath, -- Cabal-1.22
       ltsPath   :: FilePath, -- lts-7.1
       ghcPath   :: FilePath, -- ghc-7.10.3
@@ -150,9 +153,11 @@ copyOtherPackagesCommand names = command_ [] "rsync" ["-arv" , haddockOtherPacka
 
 -- | Hidden directory for generated documents
 haddockInStackWork :: NamesThatMustBeDiscovered -> FilePath
-haddockInStackWork names = ".stack-work" </> "dist" </>"x86_64-linux"</>cabalPath</>"doc"</> "html" </> packageName
+haddockInStackWork names = ".stack-work" </> "dist" </>targetPath</>cabalPath</>"doc"</> "html" </> packageName
   where
     (NamesThatMustBeDiscovered { cabalPath
+                               , targetPath
+                               
                                , packageName}) = names
 
 -- |index.html for package docs
@@ -162,9 +167,13 @@ haddockInStackWorkIndex names = haddockInStackWork names </> "index.html"
 
 -- | haddock build packages for everything
 haddockOtherPackagesInStackWork :: NamesThatMustBeDiscovered -> FilePath
-haddockOtherPackagesInStackWork names = ".stack-work"</>"install"</>"x86_64-linux"</>ltsPath</>"7.10.3"</>"doc"
+haddockOtherPackagesInStackWork names = ".stack-work"</>"install"</>targetPath</>ltsPath</>ghcPath</>"doc"
   where
-    (NamesThatMustBeDiscovered {ltsPath}) = names
+    (NamesThatMustBeDiscovered {
+          targetPath 
+        , ltsPath
+        , ghcPath
+        }) = names
 
 -- | directory to move things to ./docs
 haddockInDocs :: FilePath
@@ -232,7 +241,7 @@ buildNamesThatMustBeDiscovered = do
                                     eitherGHCString    = textGHCDirs             ^?  folded .  regex [r|(lts.*/)([[:digit:]].*)|] . 
                                                                                                    captures . ix 1  & maybe (Left GHCVersionNotFound ) (Right)
                                                                                                    
-                                    stringEncodedTarget    = CurrentOS.encodeString   $ installTarget
+                                    stringEncodedTarget    = CurrentOS.encodeString  . CurrentOS.basename $ installTarget
 
                                 return (NamesThatMustBeDiscovered
                                           stringEncodedTarget  <$>

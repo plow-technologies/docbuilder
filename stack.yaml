@@ -6,4 +6,5 @@ extra-deps:
 - herf-time-0.2.2
 - regex-genex-0.7.0
 - stream-monad-0.3
+- xml-html-conduit-lens-0.3.2.1
 resolver: lts-6.9

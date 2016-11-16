@@ -6,19 +6,31 @@
 @version 0.1.0
 
 
--- | Build documentation and put it in /docs |
+-- | Parsers and Printers for processing html files
+--   
+--   |
+module System.Docbuilder.Hxt
+myAddAttr :: ArrowXml a => String -> String -> a XmlTree XmlTree
+
+
+-- | Build documentation and put it in /docs
+--   
+--   |
 module System.Docbuilder
 
--- | Top level of document generation
+-- | Top level of document generation.
 buildTheDocsRules :: Rules ()
 
 -- | All Paths are the base path versions
 data NamesThatMustBeDiscovered
-NamesThatMustBeDiscovered :: FilePath -> FilePath -> FilePath -> String -> NamesThatMustBeDiscovered
-[buildTarget] :: NamesThatMustBeDiscovered -> FilePath
+NamesThatMustBeDiscovered :: FilePath -> FilePath -> FilePath -> FilePath -> String -> NamesThatMustBeDiscovered
+[targetPath] :: NamesThatMustBeDiscovered -> FilePath
 [cabalPath] :: NamesThatMustBeDiscovered -> FilePath
 [ltsPath] :: NamesThatMustBeDiscovered -> FilePath
+[ghcPath] :: NamesThatMustBeDiscovered -> FilePath
 [packageName] :: NamesThatMustBeDiscovered -> String
+
+-- | Find all the pieces of the directories and place them here.
 data GeneratedStaticRules
 GeneratedStaticRules :: [FilePath] -> [Rules ()] -> GeneratedStaticRules
 [generatedWants] :: GeneratedStaticRules -> [FilePath]

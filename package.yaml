@@ -14,6 +14,7 @@ dependencies:
   - time
   - yaml
   - lens-aeson
+  - hxt
   - aeson
   - lens
   - lens-regex
@@ -23,7 +24,7 @@ library:
   ghc-options: -Wall
   exposed-modules:
     - System.Docbuilder
-    
+    - System.Docbuilder.Hxt
 executables:
   docbuilder:
     main: Main.hs
