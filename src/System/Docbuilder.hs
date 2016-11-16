@@ -58,16 +58,18 @@ data GeneratedStaticRules = GeneratedStaticRules {
 -- | All Paths are the base path versions
 data NamesThatMustBeDiscovered = NamesThatMustBeDiscovered
   { 
-    buildTarget :: FilePath,
-    cabalPath   :: FilePath,
-      ltsPath   :: FilePath,
-    packageName :: String
+    buildTarget :: FilePath, -- x86_64
+    cabalPath   :: FilePath, -- Cabal-1.22
+      ltsPath   :: FilePath, -- lts-7.1
+      ghcPath   :: FilePath, -- ghc-7.10.3
+    packageName :: String    -- docbuilder
   } deriving (Eq,Show,Ord)
 
 -- | Errors building documentation
 data DocbuilderErrors = LTSNotFound 
                       | CabalNotFound
-                      | BuildPlatform
+                      | BuildPlatformNotFound
+                      | GHCVersionNotFound
                       | PkgNameNotFound String
   deriving (Show,Eq)
 
@@ -217,18 +219,26 @@ buildNamesThatMustBeDiscovered = do
                                 distTarget         <-  getDistTarget
                                 distDirs           <-  getDirectories distTarget
                                 installDirs        <-  getDirectories installTarget
+                                ghcDirs            <-  concat <$> (traverse getDirectories installDirs)
                                 eitherPkgName      <-  getPackageInfo
-                                
-                                let eitherTextInstallDirs  = CurrentOS.encodeString  <$> installDirs
-                                    eitherTextDistDirs     = CurrentOS.encodeString  <$> distDirs
-                                    eitherLtsString        = eitherTextInstallDirs   ^?  folded .  regex [r|lts.*|]   . matchedString & maybe (Left LTSNotFound )   Right
-                                    eitherCabalString      = eitherTextDistDirs      ^?  folded .  regex [r|Cabal.*|] . matchedString & maybe (Left CabalNotFound ) Right
+                                print ghcDirs
+                                let textInstallDirs    = CurrentOS.encodeString  <$> installDirs
+                                    textDistDirs       = CurrentOS.encodeString  <$> distDirs
+                                    textGHCDirs        = CurrentOS.encodeString  <$> ghcDirs
+
+                                    
+                                    eitherLtsString    = textInstallDirs   ^?  folded .  regex [r|lts.*|]                   . matchedString & maybe (Left LTSNotFound )         Right
+                                    eitherCabalString  = textDistDirs      ^?  folded .  regex [r|Cabal.*|]                 . matchedString & maybe (Left CabalNotFound )       Right                        
+                                    eitherGHCString    = textGHCDirs             ^?  folded .  regex [r|(lts.*/)([[:digit:]].*)|] . 
+                                                                                                   captures . ix 1  & maybe (Left GHCVersionNotFound ) (Right)
+                                                                                                   
                                     stringEncodedTarget    = CurrentOS.encodeString   $ installTarget
 
                                 return (NamesThatMustBeDiscovered
                                           stringEncodedTarget  <$>
                                           eitherCabalString    <*>
                                           eitherLtsString      <*>
+                                          eitherGHCString      <*>
                                           eitherPkgName )
 
 
