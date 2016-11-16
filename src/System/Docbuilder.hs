@@ -47,7 +47,7 @@ import qualified Data.Yaml as Yaml
 -- Types
 --------------------------------------------------
 
-
+-- | Find all the pieces of the directories and place them here.
 data GeneratedStaticRules = GeneratedStaticRules {
                                   generatedWants :: [FilePath],
                                   generatedRules :: [Rules ()] }
@@ -64,7 +64,7 @@ data NamesThatMustBeDiscovered = NamesThatMustBeDiscovered
     packageName :: String
   } deriving (Eq,Show,Ord)
 
-
+-- | Errors building documentation
 data DocbuilderErrors = LTSNotFound 
                       | CabalNotFound
                       | BuildPlatform
@@ -75,7 +75,8 @@ data DocbuilderErrors = LTSNotFound
 --------------------------------------------------
 -- Rules
 --------------------------------------------------
--- | Top level of document generation
+
+-- | Top level of document generation.
 buildTheDocsRules :: Rules ()
 buildTheDocsRules = do
   GeneratedStaticRules wants rules <- runDynamics
@@ -145,33 +146,37 @@ copyOtherPackagesCommand names = command_ [] "rsync" ["-arv" , haddockOtherPacka
 -- Declarations for various directories
 -------------------------------------------------
 
--- Hidden directory for generated documents
+-- | Hidden directory for generated documents
 haddockInStackWork :: NamesThatMustBeDiscovered -> FilePath
 haddockInStackWork names = ".stack-work" </> "dist" </>"x86_64-linux"</>cabalPath</>"doc"</> "html" </> packageName
   where
     (NamesThatMustBeDiscovered { cabalPath
                                , packageName}) = names
 
--- index.html for package docs
+-- |index.html for package docs
 haddockInStackWorkIndex :: NamesThatMustBeDiscovered -> FilePath
 haddockInStackWorkIndex names = haddockInStackWork names </> "index.html"
 
+
+-- | haddock build packages for everything
 haddockOtherPackagesInStackWork :: NamesThatMustBeDiscovered -> FilePath
 haddockOtherPackagesInStackWork names = ".stack-work"</>"install"</>"x86_64-linux"</>ltsPath</>"7.10.3"</>"doc"
   where
     (NamesThatMustBeDiscovered {ltsPath}) = names
 
+-- | directory to move things to ./docs
 haddockInDocs :: FilePath
 haddockInDocs = "docs" 
 
+-- | docs/index.html
 haddockInDocsIndex :: FilePath
 haddockInDocsIndex = haddockInDocs </> "index.html"
 
-
+-- | .stack-work install path 
 stackWorkInstallPath :: CurrentOS.FilePath -> CurrentOS.FilePath
 stackWorkInstallPath wd = (wd CurrentOS.</> ".stack-work" CurrentOS.</> "install")
 
-
+-- | .stack-work dist path
 stackWorkDistPath :: CurrentOS.FilePath -> CurrentOS.FilePath
 stackWorkDistPath wd = (wd CurrentOS.</> ".stack-work" CurrentOS.</> "dist")
 
@@ -179,22 +184,22 @@ stackWorkDistPath wd = (wd CurrentOS.</> ".stack-work" CurrentOS.</> "dist")
 -- Dynamic Directory Lookup
 --------------------------------------------------
 
-
+-- | get the directories and filter files out
 getDirectories :: CurrentOS.FilePath -> IO [CurrentOS.FilePath]
 getDirectories wd = do
   dirs <- Filesystem.listDirectory wd
   filterM Filesystem.isDirectory dirs
 
 
--- Get a full path target
--- FilePath "<working-dir>/.stack-work/install/x86_64-linux"
+-- | Get a full path target
+-- | FilePath "<working-dir>/.stack-work/install/x86_64-linux"
 getInstallTarget :: IO CurrentOS.FilePath
 getInstallTarget = do
  wd         <- Filesystem.getWorkingDirectory
  (dir:_)    <- getDirectories $ stackWorkInstallPath wd
  return dir
 
--- FilePath "<working-dir>/.stack-work/install/x86_64-linux"
+-- | FilePath "<working-dir>/.stack-work/install/x86_64-linux"
 getDistTarget :: IO CurrentOS.FilePath
 getDistTarget = do
  wd         <- Filesystem.getWorkingDirectory
@@ -203,7 +208,8 @@ getDistTarget = do
 
 
 
-
+-- | build the 'NamesThatMustBeDiscovered' record, this will create the dynamic pieces
+-- of the build.
 buildNamesThatMustBeDiscovered  :: IO (Either DocbuilderErrors NamesThatMustBeDiscovered)
 buildNamesThatMustBeDiscovered = do
   
@@ -231,7 +237,7 @@ buildNamesThatMustBeDiscovered = do
 --------------------------------------------------
 -- Package Info
 --------------------------------------------------
-
+-- | Get the name of the package
 getPackageInfo :: IO (Either DocbuilderErrors String)
 getPackageInfo = do
   eitherPkg <- Yaml.decodeFileEither "package.yaml" :: IO (Either Yaml.ParseException Yaml.Value)
