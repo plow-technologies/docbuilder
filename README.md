@@ -1,21 +1,13 @@
 # docbuilder
-
-TODO: Write description here
+Doc builder, build docs to be viewed in github pages or locally 
 
 ## Installation
 
-TODO: Write installation instructions here
+`stack install docbuilder`
 
-## Usage
+## Requirements
 
-TODO: Write usage instructions here
-
-## How to run tests
-
-```
-cabal configure --enable-tests && cabal build && cabal test
-```
-
-## Contributing
-
-TODO: Write contribution instructions here
++ hpack
++ package.yaml
++ stack
++ stack.yaml
