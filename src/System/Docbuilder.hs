@@ -27,7 +27,7 @@ import Development.Shake ( command_
                          , liftIO)
 import           Development.Shake.FilePath ((</>))
 import           Control.Monad (filterM)
-import System.Docbuilder.Hxt (rebaseDocs)
+
 import qualified Filesystem
 --       (isDirectory, getModified, listDirectory, isFile, writeFile) 
 import qualified Filesystem.Path.CurrentOS as CurrentOS
@@ -96,7 +96,6 @@ buildTheDocsRules = do
   GeneratedStaticRules stackWorkWants stackWorkRules       <- discoverStackWorkNames names
   want stackWorkWants
   _ <- sequence stackWorkRules
---  GeneratedStaticRules otherPackageWants otherPackageRules <- discoverStackWorkOtherPackages names
   want [haddockInDocsIndex]
   _ <- docsHaddockRule names -- otherPackageWants
   return ()
@@ -145,7 +144,6 @@ docsHaddockRule :: NamesThatMustBeDiscovered ->
 --                   [FilePath] ->
                    Rules ()
 docsHaddockRule names =
---                needs =
   haddockInDocsIndex %> \_ -> do
     need ([haddockInStackWorkIndex names])
     copyOtherPackagesCommand      names -- This needs to come before copyHaddock
@@ -166,7 +164,7 @@ stackHaddockCommand = command_ [] cmdString opts
 
 -- | Copy the files over to docs.
 copyHaddockCommand :: NamesThatMustBeDiscovered -> Action ()
-copyHaddockCommand names = command_ [] "rsync" ["-arv" , haddockInStackWork names  </> "." , haddockInDocs  ]
+copyHaddockCommand names = command_ [] "cp" ["-arv" , haddockInStackWork names  </> "." , haddockInDocs  ]
 
 -- | Copy the rest of the folders.
 copyOtherPackagesCommand :: NamesThatMustBeDiscovered -> Action ()
